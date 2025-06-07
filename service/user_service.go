@@ -59,6 +59,7 @@ func CreateUser(c *gin.Context) {
 	}
 	// user.Password = password
 	user.Password = utils.MakePassword(password, salt)
+	user.Salt = salt
 	models.CreateUser(user)
 	c.JSON(http.StatusOK, gin.H{
 		"message": "新增用户成功!",
@@ -113,4 +114,39 @@ func UpdateUser(c *gin.Context) {
 			"message": "修改用户成功!",
 		})
 	}
+}
+
+// FindByNameAndPwd
+// @Summary 所有用户
+// @Tags 用户模块
+// @param name formData string false "用户名"
+// @param password formData string false "密码"
+// @Success 200 {string} json{"code", "message"}
+// @Router /user/findByNameAndPwd [post]
+func FindByNameAndPwd(c *gin.Context) {
+	data := models.UserBasic{}
+
+	name := c.PostForm("name")
+	password := c.PostForm("password")
+	user := models.FindByName(name)
+	if user.Name == "" {
+		c.JSON(-1, gin.H{
+			"message": "用户名不存在，请重新输入!",
+		})
+		return
+	}
+
+	flag := utils.ValidPassword(password, user.Salt, user.Password)
+	if !flag {
+		c.JSON(-1, gin.H{
+			"message": "密码错误，请重新输入!",
+		})
+		return
+	}
+	// pwd := utils.MakePassword(password, user.Salt)
+	data = models.FindByNameAndPwd(name, user.Password)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": data,
+	})
 }

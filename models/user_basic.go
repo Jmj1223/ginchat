@@ -58,3 +58,10 @@ func FindByName(name string) UserBasic {
 	utils.DB.Where("name = ?", name).First(&user)
 	return user
 }
+
+// 通过 Name 和 Password 登录
+func FindByNameAndPwd(name string, password string) UserBasic {
+	user := UserBasic{}
+	utils.DB.Where("name = ? and password = ?", name, password).First(&user)
+	return user
+}
