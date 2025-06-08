@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"ginchat/utils"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -14,6 +15,7 @@ type UserBasic struct {
 	Phone         string `valid:"matches(^1[3-9]{1}\\d{9}$)"` // 手机号验证
 	Email         string `valid:"email"`
 	Salt          string
+	Identity      string
 	ClientIp      string
 	ClientPort    string
 	LoginTime     uint64
@@ -63,5 +65,10 @@ func FindByName(name string) UserBasic {
 func FindByNameAndPwd(name string, password string) UserBasic {
 	user := UserBasic{}
 	utils.DB.Where("name = ? and password = ?", name, password).First(&user)
+
+	// token 加密
+	str := fmt.Sprintf("%d", time.Now().UnixNano())
+	temp := utils.MD5Encode(str)
+	utils.DB.Model(&user).Where("id = ?", user.ID).Update("identity", temp)
 	return user
 }

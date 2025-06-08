@@ -95,7 +95,7 @@ const docTemplate = `{
                 "tags": [
                     "用户模块"
                 ],
-                "summary": "所有用户",
+                "summary": "根据用户名和密码登录",
                 "parameters": [
                     {
                         "type": "string",

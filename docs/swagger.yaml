@@ -64,7 +64,7 @@ paths:
           description: code", "message"}
           schema:
             type: string
-      summary: 所有用户
+      summary: 根据用户名和密码登录
       tags:
       - 用户模块
   /user/getUserList:

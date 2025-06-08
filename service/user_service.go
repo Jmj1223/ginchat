@@ -22,7 +22,9 @@ func GetUserList(c *gin.Context) {
 	data = models.GetUserList()
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": data,
+		"code":    0, // 0表示成功，-1表示失败
+		"message": "获取用户列表成功!",
+		"data":    data,
 	})
 }
 
@@ -47,13 +49,17 @@ func CreateUser(c *gin.Context) {
 	data := models.FindByName(user.Name)
 	if data.Name != "" {
 		c.JSON(-1, gin.H{
+			"code":    -1, // 0表示成功，-1表示失败
 			"message": "用户名已存在，请重新输入!",
+			"data":    user,
 		})
 		return
 	}
 	if password != repassword {
 		c.JSON(-1, gin.H{
+			"code":    -1, // 0表示成功，-1表示失败
 			"message": "两次密码不一致，请重新输入!",
+			"data":    user,
 		})
 		return
 	}
@@ -62,7 +68,9 @@ func CreateUser(c *gin.Context) {
 	user.Salt = salt
 	models.CreateUser(user)
 	c.JSON(http.StatusOK, gin.H{
+		"code":    0, // 0表示成功，-1表示失败
 		"message": "新增用户成功!",
+		"data":    user,
 	})
 }
 
@@ -79,7 +87,9 @@ func DeleteUser(c *gin.Context) {
 
 	models.DeleteUser(user)
 	c.JSON(http.StatusOK, gin.H{
+		"code":    0, // 0表示成功，-1表示失败
 		"message": "删除用户成功!",
+		"data":    user,
 	})
 }
 
@@ -106,18 +116,22 @@ func UpdateUser(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(200, gin.H{
+			"code":    -1, // 0表示成功，-1表示失败
 			"message": "修改参数不匹配!",
+			"data":    user,
 		})
 	} else {
 		models.UpdateUser(user)
 		c.JSON(http.StatusOK, gin.H{
+			"code":    0, // 0表示成功，-1表示失败
 			"message": "修改用户成功!",
+			"data":    user,
 		})
 	}
 }
 
 // FindByNameAndPwd
-// @Summary 所有用户
+// @Summary 根据用户名和密码登录
 // @Tags 用户模块
 // @param name formData string false "用户名"
 // @param password formData string false "密码"
@@ -131,7 +145,9 @@ func FindByNameAndPwd(c *gin.Context) {
 	user := models.FindByName(name)
 	if user.Name == "" {
 		c.JSON(-1, gin.H{
+			"code":    -1, // 0表示成功，-1表示失败
 			"message": "用户名不存在，请重新输入!",
+			"data":    data,
 		})
 		return
 	}
@@ -139,7 +155,9 @@ func FindByNameAndPwd(c *gin.Context) {
 	flag := utils.ValidPassword(password, user.Salt, user.Password)
 	if !flag {
 		c.JSON(-1, gin.H{
+			"code":    -1, // 0表示成功，-1表示失败
 			"message": "密码错误，请重新输入!",
+			"data":    data,
 		})
 		return
 	}
@@ -147,6 +165,8 @@ func FindByNameAndPwd(c *gin.Context) {
 	data = models.FindByNameAndPwd(name, user.Password)
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": data,
+		"code":    0, // 0表示成功，-1表示失败
+		"message": "登录成功!",
+		"data":    data,
 	})
 }
