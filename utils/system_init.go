@@ -1,18 +1,23 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-var DB *gorm.DB
+var (
+	DB  *gorm.DB
+	Red *redis.Client
+)
 
 func InitConfig() {
 	// viper
@@ -26,7 +31,7 @@ func InitConfig() {
 	fmt.Println("config app inited:", viper.Get("app"))
 }
 
-func InitMSQL() {
+func InitMySQL() {
 	// 打印 SQL 日志
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
@@ -44,4 +49,21 @@ func InitMSQL() {
 	// user := models.UserBasic{}
 	// db.Find(&user)
 	// fmt.Println(user)
+}
+
+func InitRedis() {
+
+	Red = redis.NewClient(&redis.Options{
+		Addr:         viper.GetString("redis.addr"),
+		Password:     viper.GetString("redis.password"),
+		DB:           viper.GetInt("redis.db"),
+		PoolSize:     viper.GetInt("redis.poolSize"),
+		MinIdleConns: viper.GetInt("redis.minIdleConns"),
+	})
+	pong, err := Red.Ping(context.Background()).Result()
+	if err != nil {
+		fmt.Println("init redis...", err)
+	} else {
+		fmt.Println("config redis inited:", pong)
+	}
 }
