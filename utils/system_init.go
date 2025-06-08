@@ -67,3 +67,31 @@ func InitRedis() {
 		fmt.Println("config redis inited:", pong)
 	}
 }
+
+const (
+	PublishKey = "websocket"
+)
+
+// Publish 发布消息到 Redis
+func Publish(ctx context.Context, channel string, msg string) error {
+	fmt.Println("Publish to channel:", channel, "message:", msg)
+	err := Red.Publish(ctx, channel, msg).Err()
+	if err != nil {
+		fmt.Println("Publish error:", err)
+		return err
+	}
+	return err
+}
+
+// Subscribe 订阅 Redis 消息
+func Subscribe(ctx context.Context, channel string) (string, error) {
+	sub := Red.Subscribe(ctx, channel)
+	fmt.Println("Subscribed ...", ctx)
+	msg, err := sub.ReceiveMessage(ctx)
+	if err != nil {
+		fmt.Println("Subscribe error:", err)
+		return "", err
+	}
+	fmt.Println("Subscribed ...", msg.Payload)
+	return msg.Payload, err
+}
